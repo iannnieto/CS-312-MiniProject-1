@@ -1,68 +1,88 @@
+// CS-312 MiniProject 1 – Blog App
+// Simple blog using Express + EJS with posts stored in memory.
+
 const express = require('express');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Store posts in memory (no database)
 let posts = [];
-let nextId = 1;
-const CATEGORIES = ["Tech", "Lifestyle", "Education", "Other"];
+let nextPostId = 1;
+const POST_CATEGORIES = ['Tech', 'Lifestyle', 'Education', 'Other'];
 
+// Middleware and view setup
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-function formatDate(dt) {
-  return new Date(dt).toLocaleString();
+// Helpers
+function formatTimestamp(value) {
+  return new Date(value).toLocaleString();
 }
-
-app.get('/', (req, res) => {
-  const { category } = req.query;
-  let filtered = posts;
-  if (category && category !== 'All') {
-    filtered = posts.filter(p => p.category === category);
-  }
-  res.render('index', { posts: filtered, categories: CATEGORIES, activeCategory: category || 'All', formatDate });
-});
-
-app.get('/posts/new', (req, res) => {
-  res.render('new', { categories: CATEGORIES });
-});
-
-app.post('/posts', (req, res) => {
-  const { author, title, content, category } = req.body;
-  const now = new Date();
-  const post = {
-    id: nextId++,
-    author: (author || '').trim() || 'Anonymous',
-    title: (title || '').trim() || '(untitled)',
-    content: (content || '').trim() || '',
-    category: CATEGORIES.includes(category) ? category : 'Other',
+function createPost({ author, title, content, category }) {
+  const now = Date.now();
+  return {
+    id: nextPostId++,
+    author: author?.trim() || 'Anonymous',
+    title: title?.trim() || '(untitled)',
+    content: content?.trim() || '',
+    category: POST_CATEGORIES.includes(category) ? category : 'Other',
     createdAt: now,
     updatedAt: now,
   };
-  posts.unshift(post);
+}
+function findPost(id) {
+  return posts.find(p => p.id === Number(id));
+}
+
+// Routes
+app.get('/', (req, res) => {
+  const activeCategory = req.query.category || 'All';
+  const visiblePosts =
+    activeCategory === 'All'
+      ? posts
+      : posts.filter(p => p.category === activeCategory);
+
+  res.render('index', {
+    posts: visiblePosts,
+    categories: POST_CATEGORIES,
+    activeCategory,
+    formatTimestamp,
+  });
+});
+
+app.get('/posts/new', (req, res) => {
+  res.render('new', { categories: POST_CATEGORIES });
+});
+
+app.post('/posts', (req, res) => {
+  const newPost = createPost(req.body);
+  posts.unshift(newPost);
   res.redirect('/');
 });
 
 app.get('/posts/:id/edit', (req, res) => {
-  const id = Number(req.params.id);
-  const post = posts.find(p => p.id === id);
+  const post = findPost(req.params.id);
   if (!post) return res.status(404).send('Post not found');
-  res.render('edit', { post, categories: CATEGORIES });
+  res.render('edit', { post, categories: POST_CATEGORIES });
 });
 
 app.post('/posts/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const post = posts.find(p => p.id === id);
+  const post = findPost(req.params.id);
   if (!post) return res.status(404).send('Post not found');
+
   const { author, title, content, category } = req.body;
-  post.author = (author || '').trim() || post.author;
-  post.title = (title || '').trim() || post.title;
-  post.content = (content || '').trim() || post.content;
-  post.category = CATEGORIES.includes(category) ? category : post.category;
-  post.updatedAt = new Date();
+  post.author = author?.trim() || post.author;
+  post.title = title?.trim() || post.title;
+  post.content = content?.trim() || post.content;
+  post.category = POST_CATEGORIES.includes(category)
+    ? category
+    : post.category;
+  post.updatedAt = Date.now();
+
   res.redirect('/');
 });
 
@@ -72,6 +92,7 @@ app.post('/posts/:id/delete', (req, res) => {
   res.redirect('/');
 });
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`CS-312 blog running at http://localhost:${PORT}`);
+  console.log(`Blog running at http://localhost:${PORT}`);
 });

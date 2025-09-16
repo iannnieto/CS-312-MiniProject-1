@@ -1,6 +1,8 @@
 <%- include('partials/head') %>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h3 m-0">All Posts</h1>
+
   <form class="d-flex" method="get" action="/">
     <select name="category" class="form-select me-2" onchange="this.form.submit()">
       <option value="All" <%= activeCategory === 'All' ? 'selected' : '' %>>All</option>
@@ -8,12 +10,13 @@
         <option value="<%= cat %>" <%= activeCategory === cat ? 'selected' : '' %>><%= cat %></option>
       <% }) %>
     </select>
-    <noscript><button class="btn btn-primary" type="submit">Filter</button></noscript>
   </form>
 </div>
+
 <% if (!posts.length) { %>
-  <div class="alert alert-info">No posts yet. Be the first to write one!</div>
+  <div class="alert alert-info">No posts yet. Create one above.</div>
 <% } %>
+
 <div class="row g-3">
   <% posts.forEach(post => { %>
     <div class="col-12 col-md-6">
@@ -23,25 +26,27 @@
             <h5 class="card-title"><%= post.title %></h5>
             <span class="badge bg-secondary"><%= post.category %></span>
           </div>
+
           <h6 class="card-subtitle mb-2 text-muted">by <%= post.author %></h6>
           <p class="card-text"><%= post.content %></p>
-          <div class="mt-auto">
-            <div class="small text-muted mb-2">
-              Created: <%= formatDate(post.createdAt) %>
-              <% if (post.updatedAt && post.updatedAt !== post.createdAt) { %>
-                • Updated: <%= formatDate(post.updatedAt) %>
-              <% } %>
-            </div>
-            <div class="d-flex gap-2">
-              <a class="btn btn-outline-primary btn-sm" href="/posts/<%= post.id %>/edit">Edit</a>
-              <form method="post" action="/posts/<%= post.id %>/delete" onsubmit="return confirm('Delete this post?');">
-                <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
-              </form>
-            </div>
+
+          <div class="mt-auto small text-muted mb-2">
+            Created: <%= formatTimestamp(post.createdAt) %>
+            <% if (post.updatedAt && post.updatedAt !== post.createdAt) { %>
+              • Updated: <%= formatTimestamp(post.updatedAt) %>
+            <% } %>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary btn-sm" href="/posts/<%= post.id %>/edit">Edit</a>
+            <form method="post" action="/posts/<%= post.id %>/delete" onsubmit="return confirm('Delete this post?');">
+              <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+            </form>
           </div>
         </div>
       </div>
     </div>
   <% }) %>
 </div>
+
 <%- include('partials/foot') %>

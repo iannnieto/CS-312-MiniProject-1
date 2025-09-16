@@ -1,15 +1,19 @@
 <%- include('partials/head') %>
+
 <h1 class="h3 mb-3">Create New Post</h1>
+
 <form method="post" action="/posts" class="card shadow-sm">
   <div class="card-body">
     <div class="mb-3">
       <label class="form-label">Author</label>
       <input class="form-control" name="author" placeholder="Your name" />
     </div>
+
     <div class="mb-3">
       <label class="form-label">Title</label>
       <input class="form-control" name="title" placeholder="Post title" required />
     </div>
+
     <div class="mb-3">
       <label class="form-label">Category</label>
       <select class="form-select" name="category">
@@ -18,14 +22,17 @@
         <% }) %>
       </select>
     </div>
+
     <div class="mb-3">
       <label class="form-label">Content</label>
-      <textarea class="form-control" name="content" rows="6" placeholder="Write your post here..." required></textarea>
+      <textarea class="form-control" name="content" rows="6" placeholder="Write here..." required></textarea>
     </div>
   </div>
+
   <div class="card-footer d-flex justify-content-between">
     <a href="/" class="btn btn-outline-secondary">Cancel</a>
     <button type="submit" class="btn btn-primary">Publish</button>
   </div>
 </form>
+
 <%- include('partials/foot') %>
