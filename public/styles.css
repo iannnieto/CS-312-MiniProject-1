@@ -1,0 +1,5 @@
+:root{ --gap:1rem; }
+body{ background:#f8f9fb; }
+.card{ border-radius:1rem; }
+.navbar .btn{ border-radius:.75rem; }
+textarea{ resize:vertical; }
